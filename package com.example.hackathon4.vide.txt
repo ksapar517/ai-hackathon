@@ -1,0 +1,98 @@
+package com.example.hackathon4.video;
+
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+
+public class Video{
+    public void saveVideo(){
+        HttpClient client = HttpClient.newHttpClient();
+        String url = "https://api.creatomate.com/v1/renders";
+        String data = "{\"template_id\":\"ce391e1d-db82-47d4-b600-7a8ec1a6f514\",\"modifications\":{\"Music\":\"https://creatomate.com/files/assets/b5dc815e-dcc9-4c62-9405-f94913936bf5\"," +
+                                                                                                  "\"Background-1\":\"C:\\ai_hackathon\\hackathon4\\photo_save3\\WhatsApp Image 2024-04-04 at 09.47.53_cec0183a.jpg\"," +
+                                                                                                  "\"Text-1\":\"Did you know you can automate TikTok, Instagram, and YouTube videos? 🔥\"," +
+                                                                                                  "\"Background-2\":\"C:\\ai_hackathon\\hackathon4\\photo_save3\\WhatsApp Image 2024-04-04 at 09.47.55_63a6720f.jpg\"," +
+                                                                                                  "\"Text-2\":\"Use any video automation tool to replace these text and background assets with your own! 😊\"," +
+                                                                                                  "\"Background-3\":\"C:\\ai_hackathon\\hackathon4\\photo_save3\\WhatsApp Image 2024-04-04 at 09.47.54_65572ada.jpg\"," +
+                                                                                                  "\"Text-3\":\"Learn how to get started on the Guides & Tutorials page on Creatomate's home page.\"," +
+                                                                                                   "\"Background-4\":\"C:\\ai_hackathon\\hackathon4\\photo_save3\\WhatsApp Image 2024-04-04 at 09.47.54_873f5d24.jpg\"," +
+                                                                                                   "\"Text-4\":\"Use the template editor to completely customize this video to meet your own needs. 🚀\"}}";
+        String token = "1fb918b8d5c848caa409f70010ed09fada05fe8a80ac74605a968529546de9fc5f0e898827121f6831de9f2c6f07c9e6";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .POST(HttpRequest.BodyPublishers.ofString(data, StandardCharsets.UTF_8))
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .build();
+
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Response status code: " + response.statusCode());
+        System.out.println("Response body: " + response.body());
+
+        System.out.println("Request JSON: " + data);
+
+
+
+
+
+        try {
+            HttpResponse<byte[]> response1 = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            byte[] videoData = response1.body();
+
+            String jsonResponse = new String(videoData);
+
+            // Вывод данных видео в консоль (если необходимо)
+            System.out.println("Video Data:");
+            System.out.println(Arrays.toString(videoData));
+
+            // Вывод URL запроса и JSON-ответа в консоль
+            System.out.println(new StringBuilder().append("Request URL: ").append(url).toString());
+            System.out.println("JSON Response:");
+            System.out.println();
+
+            int startIndex = jsonResponse.indexOf("\"url\":\"") + "\"url\":\"".length();
+
+
+            int endIndex = jsonResponse.indexOf("\"", startIndex);
+
+
+            String url1 = jsonResponse.substring(startIndex, endIndex);
+
+
+            System.out.println("URL from JSON Response:");
+            System.out.println(url1);
+
+
+
+            Path videoFilePath = Path.of("C:\\ai_hackathon\\hackathon4\\photo_save\\video.mp4");
+
+            // Сохраняем данные видео в файл
+            Files.write(videoFilePath, videoData);
+
+            File videoFile = videoFilePath.toFile();
+
+
+            String requestUrl = "https://api.creatomate.com/v1/renders";
+
+            System.out.println(Files.write(videoFilePath, videoData));
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+}
